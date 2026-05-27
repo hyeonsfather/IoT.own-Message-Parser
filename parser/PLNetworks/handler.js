@@ -2156,7 +2156,7 @@ exports.dataHandler = function (data, node, gateway /* <= Buffer type */) {
             /* UWB Dist */
             let n = length/6;
             let co = 0;
-            var uwbDist = [];
+            var uwbDist = {};
 			let k = i + 2;
 
             for(let co = 0; co < n; co++) {
@@ -2178,6 +2178,26 @@ exports.dataHandler = function (data, node, gateway /* <= Buffer type */) {
 			}
 
             out.uwbDist = uwbDist;
+
+        } else if (type == 0xD3) {
+
+            var val = data[i + 2];
+            switch (length)
+            {
+                case 1: val = data[i + 2]; break;
+                case 2: val = (data[i + 2] << 8) + data[i + 3]; break;
+                case 4: val = (data[i + 2] << 24) + (data[i + 3] << 16) + (data[i + 4] << 8) + (data[i + 5]); break;
+            }
+            /* out.temperature = (val/10).toString(); */
+            var sign = val & (1 << 15);
+            if(sign)
+            {
+                out.feelsLikeTemp = ((0xFFFF0000 | val)/10);
+            }
+            else
+            {
+                out.feelsLikeTemp = (val/10);
+            }
 
         } else if (type == 0xF0) {
             out.battery = data[i + 2];
